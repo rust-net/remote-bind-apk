@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RemoteBind</string>
+    <string name="title_activity_rm_bind">RmBindActivity</string>
 </resources>
