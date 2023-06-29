@@ -21,7 +21,9 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
-        native-lib.cpp)
+        native-lib.cpp
+        bridge.cpp
+        )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -36,12 +38,23 @@ find_library( # Sets the name of the path variable.
         # you want CMake to locate.
         log)
 
+set(jniLibs ${CMAKE_SOURCE_DIR}/../jniLibs)
+set(CMAKE_FIND_ROOT_PATH ${jniLibs}/${CMAKE_ANDROID_ARCH_ABI})
+set(CMAKE_FIND_LIBRARY_CUSTOM_LIB_SUFFIX ../) # 默认查找搜索路径下的 lib 目录, 为了删除该目录, 设置该前缀
+find_library(
+        android-lib
+        NAMES rust
+)
+message("android-lib: ${android-lib}") # Expect: ...app/src/main/cpp/../jniLibs/arm64-v8a/Windows/../librust.so
+
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
         remote_bind
+
+        ${android-lib}
 
         # Links the target library to the log library
         # included in the NDK.

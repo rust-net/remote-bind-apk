@@ -3,13 +3,17 @@ package app.remote_bind
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import app.remote_bind.ui.theme.RemoteBindTheme
 
 class RmBindActivity : ComponentActivity() {
@@ -31,7 +35,14 @@ class RmBindActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+    Column() {
+        Text(text = "Hello $name!")
+        Button(onClick = {
+            bridge.test()
+        }) {
+            Text(text = "TEST")
+        }
+    }
 }
 
 @Preview(showBackground = true)
