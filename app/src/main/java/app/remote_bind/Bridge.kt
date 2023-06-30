@@ -8,6 +8,8 @@ class Bridge {
     }
 
     external fun test()
+    external fun start(server: String, port: Short, password: String, local_service: String): String
+    external fun stop(handler: String)
 }
 
 val bridge = Bridge()
