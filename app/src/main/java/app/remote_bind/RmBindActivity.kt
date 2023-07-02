@@ -1,5 +1,7 @@
 package app.remote_bind
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,7 +33,15 @@ class RmBindActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    Greeting("Android") {
+                        val intent = Intent()
+                        intent.setClass(this, RmBindService::class.java)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            this.startForegroundService(intent)
+                        } else {
+                            this.startService(intent)
+                        }
+                    }
                 }
             }
         }
@@ -39,7 +49,7 @@ class RmBindActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String) {
+fun Greeting(name: String, tester: () -> Unit) {
     var handler: String? by rememberSaveable {
         mutableStateOf(null)
     }
@@ -49,7 +59,7 @@ fun Greeting(name: String) {
         verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
     ) {
         Button(onClick = {
-            bridge.test()
+            tester()
         }) {
             Text(text = "TEST")
         }
@@ -80,6 +90,8 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     RemoteBindTheme {
-        Greeting("Android")
+        Greeting("Android") {
+            //
+        }
     }
 }

@@ -4,6 +4,7 @@
     package="app.remote_bind">
 
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -15,6 +16,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RemoteBind"
         tools:targetApi="31">
+        <service
+            android:name=".RmBindService"
+            android:enabled="true"
+            android:exported="true" />
         <activity
             android:name=".RmBindActivity"
             android:exported="true"
