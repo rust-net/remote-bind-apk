@@ -3,8 +3,10 @@ package app.remote_bind
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -15,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import app.remote_bind.ui.theme.RemoteBindTheme
 
@@ -40,8 +43,11 @@ fun Greeting(name: String) {
     var handler: String? by rememberSaveable {
         mutableStateOf(null)
     }
-    Column {
-        Text(text = "Hello $name!")
+    Column(
+        modifier = Modifier.fillMaxWidth().background(Color.Cyan),
+        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+        verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+    ) {
         Button(onClick = {
             bridge.test()
         }) {
@@ -64,6 +70,9 @@ fun Greeting(name: String) {
                 Text(text = "停止")
             }
         }
+    }
+    Column {
+        Text(text = "Remote Binding")
     }
 }
 
