@@ -15,7 +15,7 @@ class RmBindService : Service() {
     private val channelId: String = "msg"
 
     private fun getIntent() = Intent(this, RmBindActivity::class.java).let { notificationIntent ->
-        PendingIntent.getActivity(this, 1, notificationIntent, 0)
+        PendingIntent.getActivity(this, 1, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
     }
 
     // https://developer.android.com/training/notify-user/build-notification?hl=zh-cn#kotlin
@@ -53,7 +53,7 @@ class RmBindService : Service() {
 //            notificationManager.createNotificationChannel(channel)
             // more like
             getSystemService<NotificationManager>().also { notificationManager ->
-                notificationManager?.createNotificationChannel(channel);
+                notificationManager?.createNotificationChannel(channel)
             }
         }
     }
