@@ -9,8 +9,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -18,6 +22,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -27,18 +32,35 @@ import kotlinx.coroutines.launch
 
 val titles = listOf<String>("配置列表", "服务器列表")
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppUI() {
     val pagerState = rememberPagerState()
     Scaffold(
-        topBar = {
-            TopAppBar(title = {
-                Text(text = titles[pagerState.currentPage])
-            }, Modifier.background(color = Color.Blue))
-        },
+        topBar = { AppTopBar(titles[pagerState.currentPage]) },
         content = { innerPadding -> AppContent(pagerState, innerPadding) },
         bottomBar = { AppBottomBar(pagerState) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AppTopBar(title: String) {
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
+        title = {
+            Text(
+                text = title,
+                color = Color.White,
+                modifier = Modifier
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = {}) {
+                Icon(Icons.Filled.Menu, null, tint = Color.White)
+            }
+        },
+        modifier = Modifier
     )
 }
 
