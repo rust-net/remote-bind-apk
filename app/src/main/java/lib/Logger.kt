@@ -14,6 +14,15 @@ interface ILoggerImpl {
     fun print(level: Level, tag: String, msg: String)
 }
 
+/**
+ * Example:
+ * ```
+ * import lib.log
+ *
+ * log.d("The value of 1+1:", 1+1)
+ * log.e("Error!", RuntimeException("Unknown"))
+ * ```
+ */
 class Logger(private val name: String, private val loggerImpl: ILoggerImpl) {
     /**
      * Default value: 3, Android: 4, cause in Android OS:
@@ -30,15 +39,6 @@ class Logger(private val name: String, private val loggerImpl: ILoggerImpl) {
         else -> 3
     }
 
-    /**
-     * Example:
-     * ```
-     * import lib.*
-     *
-     * log.d("The value of 1+1:", 1+1)
-     * log.e("Error!", RuntimeException("Unknown"))
-     * ```
-     */
     private fun print(level: Level, vararg _msg: Any?) {
         var msg = _msg.joinToString(separator = " ") {
             it ?.toString() ?: "[null]"
