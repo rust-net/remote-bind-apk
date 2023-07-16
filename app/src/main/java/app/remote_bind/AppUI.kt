@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -28,17 +29,25 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import app.remote_bind.Instance
+import app.remote_bind.Server
 import kotlinx.coroutines.launch
 
-val titles = listOf<String>("配置列表", "服务器列表")
+val titles = listOf("配置列表", "服务器列表")
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AppUI() {
+fun AppUI(
+    configs:  Pair<List<Instance>, List<Server>>,
+) {
     val pagerState = rememberPagerState()
     Scaffold(
         topBar = { AppTopBar(titles[pagerState.currentPage]) },
-        content = { innerPadding -> AppContent(pagerState, innerPadding) },
+        content = { innerPadding -> AppContent(
+            pagerState,
+            innerPadding,
+            configs,
+        ) },
         bottomBar = { AppBottomBar(pagerState) }
     )
 }
@@ -107,7 +116,12 @@ fun AppBottomBar(pagerState: PagerState) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AppContent(pagerState: PagerState, innerPadding: PaddingValues) {
+fun AppContent(
+    pagerState: PagerState,
+    innerPadding: PaddingValues,
+    configs:  Pair<List<Instance>, List<Server>>,
+) {
+    val (insts, servs) = configs
     HorizontalPager(
         state = pagerState, pageCount = titles.size, modifier = Modifier
     ) { pageIndex ->
@@ -116,7 +130,15 @@ fun AppContent(pagerState: PagerState, innerPadding: PaddingValues) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Text(text = titles[pageIndex])
+            LazyColumn {
+                items(count = insts.size) {
+                    if (titles[pageIndex] == "配置列表") {
+                        Text(text = insts[it].name)
+                    } else {
+                        Text(text = servs[it].name)
+                    }
+                }
+            }
         }
     }
 }
