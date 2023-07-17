@@ -1,6 +1,5 @@
 package app.remote_bind
 
-import AppUI
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
@@ -10,14 +9,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import app.remote_bind.ui.AppUI
 import app.remote_bind.ui.theme.RemoteBindTheme
 import lib.log
 
 class RmBindActivity : ComponentActivity() {
-    private lateinit var sp: SharedPreferences
+    private val sp: SharedPreferences by lazy {
+        getSharedPreferences("config", MODE_PRIVATE)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        sp = getSharedPreferences("config", MODE_PRIVATE)
         super.onCreate(savedInstanceState)
         setContent {
             val configs by remember {

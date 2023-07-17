@@ -1,8 +1,8 @@
 package app.remote_bind
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import lib.log
-import kotlin.streams.toList
 
 /*
 <?xml version='1.0' encoding='utf-8' standalone='yes' ?>
@@ -48,7 +48,12 @@ data class Server(
 }
 
 fun getConfigs(sp: SharedPreferences): Pair<List<Instance>, List<Server>> {
-    log.i(sp.getString("version", "config.xml load failed"))
+    if (sp.getString("version", null).apply { log.i("config version: $this") } == null) {
+        log.i("config.xml load failed")
+        sp.edit(commit = true) {
+            putString("version", "1.0")
+        }
+    }
     val instances: List<Instance> = sp.getStringSet("instances", setOf()).let { it ->
         log.i(it?.size)
         it?.map { name ->
@@ -69,12 +74,7 @@ fun getConfigs(sp: SharedPreferences): Pair<List<Instance>, List<Server>> {
             log.i(inst)
             inst
         } ?: listOf<Instance>()
-    }.let {
-        // filter null value
-        it.stream().filter { e: Instance? ->
-            e != null
-        }.toList() as List<Instance>
-    }
+    }.filterNotNull()
     val servers: List<Server> = sp.getStringSet("servers", setOf()).let { it ->
         log.i(it?.size)
         it?.map { name ->
@@ -94,11 +94,6 @@ fun getConfigs(sp: SharedPreferences): Pair<List<Instance>, List<Server>> {
             log.i(serv)
             serv
         } ?: listOf<Server>()
-    }.let {
-        // filter null value
-        it.stream().filter { e: Server? ->
-            e != null
-        }.toList() as List<Server>
-    }
+    }.filterNotNull()
     return Pair(instances, servers)
 }
