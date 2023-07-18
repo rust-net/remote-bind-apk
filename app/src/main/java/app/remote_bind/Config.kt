@@ -35,7 +35,7 @@ data class Instance(
     var local_address: String,
 ) {
     companion object {
-        fun default() = Instance("", "", 0u, "")
+        fun default() = Instance("service", "server", 0u, "127.0.0.1:5555")
     }
 }
 
@@ -45,7 +45,7 @@ data class Server(
     var password: String,
 ) {
     companion object {
-        fun default() = Server("", "", "")
+        fun default() = Server("server", "1.1.1.1:1234", "test")
     }
 }
 
@@ -68,7 +68,7 @@ fun getConfigs(): Pair<List<Instance>, List<Server>> {
             val inst = Instance.default()
             inst.name = name
             instance.forEach {
-                val split = it.split(":")
+                val split = it.split(":", limit = 2)
                 when (split[0]) {
                     "server_name" -> inst.server_name = split[1]
                     "remote_port" -> inst.remote_port = split[1].toUShort()
@@ -89,7 +89,7 @@ fun getConfigs(): Pair<List<Instance>, List<Server>> {
             val serv = Server.default()
             serv.name = name
             server.forEach {
-                val split = it.split(":")
+                val split = it.split(":", limit = 2)
                 when (split[0]) {
                     "address" -> serv.address = split[1]
                     "password" -> serv.password = split[1]
@@ -106,6 +106,7 @@ fun getConfigs(): Pair<List<Instance>, List<Server>> {
  * 添加配置，如果name重复，则修改已有配置
  */
 fun addConfig(value: Any, showDialog: MutableState<Boolean>) {
+    log.i("看看", value)
     when (value) {
         is Server -> {
             val servers = sharedPreferences.getStringSet("servers", setOf())!!.toMutableSet()
@@ -154,4 +155,5 @@ inline fun <reified T> rm(name: String) {
             }
         }
     }
+    configs.value = getConfigs()
 }
