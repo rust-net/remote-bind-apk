@@ -48,14 +48,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.remote_bind.Instance
 import app.remote_bind.Server
+import app.remote_bind.getConfigs
 import kotlinx.coroutines.launch
 
 private val titles = listOf("配置列表", "服务器列表")
 
+val configs by lazy {
+    mutableStateOf( getConfigs() )
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppUI(
-    configs:  Pair<List<Instance>, List<Server>>,
+//    configs: Pair<List<Instance>, List<Server>>,
 ) {
     val pagerState = rememberPagerState()
     val showDialog = remember { mutableStateOf(false) }
@@ -65,7 +70,7 @@ fun AppUI(
             AppContent(
                 pagerState,
                 innerPadding,
-                configs,
+                configs.value,
             )
         },
         bottomBar = { AppBottomBar(pagerState) },
@@ -73,7 +78,7 @@ fun AppUI(
            IconButton(onClick = {
                showDialog.value = true
            }, modifier = Modifier.size(40.dp)) {
-               Icon(Icons.Filled.AddCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.fillMaxSize())
+               Icon(Icons.Filled.AddCircle, null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.fillMaxSize())
            }
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -189,11 +194,13 @@ fun AppContent(
                 .padding(innerPadding)
         ) {
             LazyColumn {
-                items(count = insts.size) {
-                    if (titles[pageIndex] == "配置列表") {
-                        Text(text = insts[it].name)
-                    } else {
-                        Text(text = servs[it].name)
+                if (titles[pageIndex] == "配置列表") {
+                    items(count = insts.size) {
+                        InstanceItem(value = insts[it])
+                    }
+                } else {
+                    items(count = servs.size) {
+                        ServerItem(value = servs[it])
                     }
                 }
             }

@@ -14,20 +14,13 @@ import app.remote_bind.ui.theme.RemoteBindTheme
 import lib.log
 
 class RmBindActivity : ComponentActivity() {
-    private val sp: SharedPreferences by lazy {
-        getSharedPreferences("config", MODE_PRIVATE)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = getSharedPreferences("config", MODE_PRIVATE)
         setContent {
-            val configs by remember {
-                mutableStateOf(getConfigs(sp))
-            }
-            log.i(configs)
             RemoteBindTheme {
                 AppUI(
-                    configs = configs,
+//                    configs = getConfigs(),
                 )
             }
         }

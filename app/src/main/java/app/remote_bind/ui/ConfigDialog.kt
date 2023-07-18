@@ -28,6 +28,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import app.remote_bind.Instance
 import app.remote_bind.Server
+import app.remote_bind.addConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +36,16 @@ fun ConfigDialog(
     showDialog: MutableState<Boolean>,
     server: Server? = null,
     instance: Instance? = null,
+    onOk: (value: Any, showDialog: MutableState<Boolean>) -> Unit = ::addConfig,
 ) {
+    var name by remember { mutableStateOf(server?.name ?: instance?.name !!) }
+    // server
+    var address by remember { mutableStateOf(server?.address ?: "") }
+    var password by remember { mutableStateOf(server?.password ?: "") }
+    // instance
+    var local_address by remember { mutableStateOf(instance?.local_address ?: "") }
+    var server_name by remember { mutableStateOf(instance?.server_name ?: "") }
+    var remote_port by remember { mutableStateOf(instance?.remote_port?.toString() ?: "") }
     val textFieldColors = TextFieldDefaults.textFieldColors(
         focusedLabelColor = MaterialTheme.colorScheme.background,
         focusedIndicatorColor = MaterialTheme.colorScheme.outline,
@@ -55,9 +65,6 @@ fun ConfigDialog(
         text = {
             Column {
                 if (server != null) {
-                    var name by remember { mutableStateOf(server.name) }
-                    var address by remember { mutableStateOf(server.address) }
-                    var password by remember { mutableStateOf(server.password) }
                     TextField(
                         maxLines = 1,
                         label = {
@@ -94,11 +101,7 @@ fun ConfigDialog(
                         },
                         colors = textFieldColors,
                     )
-                } else if (instance != null){
-                    var name by remember { mutableStateOf(instance.name) }
-                    var local_address by remember { mutableStateOf(instance.local_address) }
-                    var server_name by remember { mutableStateOf(instance.server_name) }
-                    var remote_port by remember { mutableStateOf(instance.remote_port.toString()) }
+                } else if (instance != null) {
                     TextField(
                         maxLines = 1,
                         label = {
@@ -153,7 +156,13 @@ fun ConfigDialog(
             }
         },
         confirmButton = {
-            FilledTonalButton(onClick = {}, colors = ButtonDefaults.filledTonalButtonColors(
+            FilledTonalButton(onClick = {
+                if (server != null) {
+                    onOk(Server(name, address, password), showDialog)
+                } else {
+                    onOk(Instance(name, server_name, remote_port.toUShort(), local_address), showDialog)
+                }
+            }, colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.background,
             )) {
                 Text("确定", color = MaterialTheme.colorScheme.primary)

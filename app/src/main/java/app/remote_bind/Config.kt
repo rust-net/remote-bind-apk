@@ -1,7 +1,9 @@
 package app.remote_bind
 
 import android.content.SharedPreferences
+import androidx.compose.runtime.MutableState
 import androidx.core.content.edit
+import app.remote_bind.ui.configs
 import lib.log
 
 /*
@@ -47,18 +49,20 @@ data class Server(
     }
 }
 
-fun getConfigs(sp: SharedPreferences): Pair<List<Instance>, List<Server>> {
-    if (sp.getString("version", null).apply { log.i("config version: $this") } == null) {
+lateinit var sharedPreferences: SharedPreferences
+
+fun getConfigs(): Pair<List<Instance>, List<Server>> {
+    if (sharedPreferences.getString("version", null).apply { log.i("config version: $this") } == null) {
         log.i("config.xml load failed")
-        sp.edit(commit = true) {
+        sharedPreferences.edit(commit = true) {
             putString("version", "1.0")
         }
     }
-    val instances: List<Instance> = sp.getStringSet("instances", setOf()).let { it ->
+    val instances: List<Instance> = sharedPreferences.getStringSet("instances", setOf()).let { it ->
         log.i(it?.size)
         it?.map { name ->
             log.i("name -> $name")
-            val instance = sp.getStringSet(name, setOf())
+            val instance = sharedPreferences.getStringSet(name, setOf())
                 ?.toList()
                 ?: return@map null
             val inst = Instance.default()
@@ -74,12 +78,12 @@ fun getConfigs(sp: SharedPreferences): Pair<List<Instance>, List<Server>> {
             log.i(inst)
             inst
         } ?: listOf<Instance>()
-    }.filterNotNull()
-    val servers: List<Server> = sp.getStringSet("servers", setOf()).let { it ->
+    }.filterNotNull().sortedBy { it.name }
+    val servers: List<Server> = sharedPreferences.getStringSet("servers", setOf()).let { it ->
         log.i(it?.size)
         it?.map { name ->
             log.i("name -> $name")
-            val server = sp.getStringSet(name, setOf())
+            val server = sharedPreferences.getStringSet(name, setOf())
                 ?.toList()
                 ?: return@map null
             val serv = Server.default()
@@ -94,6 +98,60 @@ fun getConfigs(sp: SharedPreferences): Pair<List<Instance>, List<Server>> {
             log.i(serv)
             serv
         } ?: listOf<Server>()
-    }.filterNotNull()
+    }.filterNotNull().sortedBy { it.name }
     return Pair(instances, servers)
+}
+
+/**
+ * 添加配置，如果name重复，则修改已有配置
+ */
+fun addConfig(value: Any, showDialog: MutableState<Boolean>) {
+    when (value) {
+        is Server -> {
+            val servers = sharedPreferences.getStringSet("servers", setOf())!!.toMutableSet()
+            sharedPreferences.edit(commit = true) {
+                putStringSet(value.name, setOf(
+                    "address:${value.address}",
+                    "password:${value.password}",
+                ))
+                putStringSet("servers", servers.apply { this.add(value.name) })
+            }
+        }
+        is Instance -> {
+            val instances = sharedPreferences.getStringSet("instances", setOf())!!.toMutableSet()
+            sharedPreferences.edit(commit = true) {
+                putStringSet(value.name, setOf(
+                    "server_name:${value.server_name}",
+                    "remote_port:${value.remote_port}",
+                    "local_address:${value.local_address}",
+                ))
+                putStringSet("instances", instances.apply { this.add(value.name) })
+            }
+        }
+    }
+    configs.value = getConfigs()
+    showDialog.value = false
+}
+
+inline fun <reified T> rm(name: String) {
+    when (T::class) {
+        Server::class -> {
+            val servers = sharedPreferences.getStringSet("servers", setOf())!!.toMutableSet()
+            sharedPreferences.edit(commit = true) {
+                if (servers.remove(name)) {
+                    putStringSet("servers", servers)
+                }
+                remove(name)
+            }
+        }
+        Instance::class -> {
+            val instances = sharedPreferences.getStringSet("instances", setOf())!!.toMutableSet()
+            sharedPreferences.edit(commit = true) {
+                if (instances.remove(name)) {
+                    putStringSet("instances", instances)
+                }
+                remove(name)
+            }
+        }
+    }
 }
