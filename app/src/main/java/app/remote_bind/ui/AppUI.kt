@@ -64,6 +64,7 @@ fun AppUI(
 ) {
     val pagerState = rememberPagerState()
     val showDialog = remember { mutableStateOf(false) }
+    ShowToast()
     Scaffold(
         topBar = { AppTopBar(titles[pagerState.currentPage]) },
         content = { innerPadding ->

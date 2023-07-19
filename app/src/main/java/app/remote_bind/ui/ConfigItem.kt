@@ -1,5 +1,6 @@
 package app.remote_bind.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,8 +29,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import app.remote_bind.Config
 import app.remote_bind.Instance
 import app.remote_bind.Server
 import app.remote_bind.rm
@@ -39,8 +42,7 @@ import app.remote_bind.rm
 fun MenuDialog(
     showMenu: MutableState<Boolean>,
     showDialog: MutableState<Boolean>,
-    server: Server? = null,
-    instance: Instance? = null,
+    config: Config,
 ) {
     AlertDialog(
         onDismissRequest = { showMenu.value = false },
@@ -55,10 +57,13 @@ fun MenuDialog(
                 Text("修改")
             }
             Button(onClick = {
-                if (server != null)
-                    rm<Server>(server.name)
-                else if (instance != null)
-                    rm<Instance>(instance.name)
+                val ok = when (config) {
+                    is Server -> rm<Server>(config.name)
+                    is Instance -> rm<Instance>(config.name)
+                    else -> false
+                }
+                if (ok)
+                    showToast("删除 ${config.name} 成功")
                 showMenu.value = false
             }, Modifier.fillMaxWidth()) {
                 Icon(Icons.Filled.Delete, null, tint = MaterialTheme.colorScheme.background)
@@ -76,14 +81,16 @@ fun InstanceItem(
     val showMenu= remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
     if (showMenu.value) {
-        MenuDialog(showMenu, showDialog, instance = value)
+        MenuDialog(showMenu, showDialog, value)
     }
     if (showDialog.value) {
         ConfigDialog(
             showDialog,
             instance = value,
+            isModify = true,
         )
     }
+    Spacer(modifier = Modifier.size(10.dp))
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,8 +108,26 @@ fun InstanceItem(
             Text(text = value.name)
         }
         Divider()
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+            Row(
+                Modifier.fillMaxWidth(),
+                Arrangement.SpaceAround,
+            ) {
+                Column {
+                    Text(text = "Address:", modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text(text = value.local_address, modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+                Column {
+                    Text(text = "Server:", modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text(text = value.server_name, modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+                Column {
+                    Text(text = "Port:", modifier = Modifier.align(Alignment.CenterHorizontally))
+                    Text(text = value.remote_port.toString(), modifier = Modifier.align(Alignment.CenterHorizontally))
+                }
+            }
+        }
     }
-    Spacer(modifier = Modifier.size(10.dp))
 }
 
 @Composable
@@ -112,14 +137,16 @@ fun ServerItem(
     val showMenu= remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
     if (showMenu.value) {
-        MenuDialog(showMenu, showDialog, server = value)
+        MenuDialog(showMenu, showDialog, value)
     }
     if (showDialog.value) {
         ConfigDialog(
             showDialog,
             server = value,
+            isModify = true,
         )
     }
+    Spacer(modifier = Modifier.size(10.dp))
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -154,5 +181,4 @@ fun ServerItem(
             }
         }
     }
-    Spacer(modifier = Modifier.size(10.dp))
 }

@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.compose.runtime.MutableState
 import androidx.core.content.edit
 import app.remote_bind.ui.configs
+import app.remote_bind.ui.showToast
 import lib.log
 
 /*
@@ -28,22 +29,26 @@ import lib.log
 </map>
  */
 
+sealed interface Config {
+    var name: String
+}
+
 data class Instance(
-    var name: String,
+    override var name: String,
     var server_name: String,
     var remote_port: UShort,
     var local_address: String,
-) {
+) : Config {
     companion object {
         fun default() = Instance("service", "server", 0u, "127.0.0.1:5555")
     }
 }
 
 data class Server(
-    var name: String,
+    override var name: String,
     var address: String,
     var password: String,
-) {
+) : Config {
     companion object {
         fun default() = Server("server", "1.1.1.1:1234", "test")
     }
@@ -105,8 +110,9 @@ fun getConfigs(): Pair<List<Instance>, List<Server>> {
 /**
  * 添加配置，如果name重复，则修改已有配置
  */
-fun addConfig(value: Any, showDialog: MutableState<Boolean>) {
-    log.i("看看", value)
+fun addConfig(value: Config, showDialog: MutableState<Boolean>, isModify: Boolean) {
+    if (!isModify && sharedPreferences.getStringSet(value.name, null) != null)
+        return showToast("名称不能重复!")
     when (value) {
         is Server -> {
             val servers = sharedPreferences.getStringSet("servers", setOf())!!.toMutableSet()
@@ -134,26 +140,18 @@ fun addConfig(value: Any, showDialog: MutableState<Boolean>) {
     showDialog.value = false
 }
 
-inline fun <reified T> rm(name: String) {
-    when (T::class) {
-        Server::class -> {
-            val servers = sharedPreferences.getStringSet("servers", setOf())!!.toMutableSet()
-            sharedPreferences.edit(commit = true) {
-                if (servers.remove(name)) {
-                    putStringSet("servers", servers)
-                }
-                remove(name)
-            }
-        }
-        Instance::class -> {
-            val instances = sharedPreferences.getStringSet("instances", setOf())!!.toMutableSet()
-            sharedPreferences.edit(commit = true) {
-                if (instances.remove(name)) {
-                    putStringSet("instances", instances)
-                }
-                remove(name)
-            }
+inline fun <reified T: Config> rm(name: String): Boolean {
+    val type = when (T::class) {
+        Server::class -> "servers"
+        Instance::class -> "instances"
+        else -> return false
+    }
+    val names = sharedPreferences.getStringSet(type, setOf())!!.toMutableSet()
+    sharedPreferences.edit(commit = true) {
+        if (names.remove(name)) {
+            putStringSet(type, names).remove(name)
         }
     }
     configs.value = getConfigs()
+    return true
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
+import app.remote_bind.Config
 import app.remote_bind.Instance
 import app.remote_bind.Server
 import app.remote_bind.addConfig
@@ -36,7 +37,8 @@ fun ConfigDialog(
     showDialog: MutableState<Boolean>,
     server: Server? = null,
     instance: Instance? = null,
-    onOk: (value: Any, showDialog: MutableState<Boolean>) -> Unit = ::addConfig,
+    onOk: (value: Config, showDialog: MutableState<Boolean>, isModify: Boolean) -> Unit = ::addConfig,
+    isModify: Boolean = false,
 ) {
     var name by remember { mutableStateOf(server?.name ?: instance?.name !!) }
     // server
@@ -158,9 +160,9 @@ fun ConfigDialog(
         confirmButton = {
             FilledTonalButton(onClick = {
                 if (server != null) {
-                    onOk(Server(name, address, password), showDialog)
+                    onOk(Server(name, address, password), showDialog, isModify)
                 } else {
-                    onOk(Instance(name, server_name, remote_port.toUShort(), local_address), showDialog)
+                    onOk(Instance(name, server_name, remote_port.toUShort(), local_address), showDialog, isModify)
                 }
             }, colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.background,
