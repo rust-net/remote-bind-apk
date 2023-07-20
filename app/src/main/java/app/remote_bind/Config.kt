@@ -112,7 +112,7 @@ fun getConfigs(): Pair<List<Instance>, List<Server>> {
  */
 fun addConfig(value: Config, showDialog: MutableState<Boolean>, isModify: Boolean) {
     if (!isModify && sharedPreferences.getStringSet(value.name, null) != null)
-        return showToast("名称不能重复!")
+        return showToast("名称不能重复！")
     when (value) {
         is Server -> {
             val servers = sharedPreferences.getStringSet("servers", setOf())!!.toMutableSet()
@@ -154,4 +154,38 @@ inline fun <reified T: Config> rm(name: String): Boolean {
     }
     configs.value = getConfigs()
     return true
+}
+
+fun findServerByName(name: String): Server? {
+    val (_, servers) = configs.value
+    return servers.find { it.name == name }
+}
+
+// 运行中的配置名及其id
+// 请考虑配置名被修改的情况（运行中不允许修改、删除即可）
+private val runningList = hashMapOf<String, String>()
+fun playOrStop(instance: Instance, running: MutableState<Boolean>) {
+    if (running.value) {
+        runningList[instance.name]?.let { id ->
+            bridge.stop(id)
+            runningList.remove(instance.name)
+            showToast("停止成功：$id")
+        }
+        running.value = false
+        return
+    }
+    val server = findServerByName(instance.server_name).let {
+        if (it == null) {
+            return showToast("配置无效，请重新设置服务器！")
+        }
+        it
+    }
+    val id = bridge.start(server.address, instance.remote_port.toShort(), server.password, instance.local_address)
+    showToast("启动成功：$id")
+    runningList[instance.name] = id
+    running.value = true
+}
+
+fun isRunning(name: String): Boolean {
+    return runningList[name] != null
 }

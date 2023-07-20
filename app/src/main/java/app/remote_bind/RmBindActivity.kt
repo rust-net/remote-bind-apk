@@ -1,17 +1,12 @@
 package app.remote_bind
 
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import app.remote_bind.ui.AppUI
 import app.remote_bind.ui.theme.RemoteBindTheme
-import lib.log
 
 class RmBindActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
