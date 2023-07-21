@@ -30,6 +30,7 @@ import app.remote_bind.Config
 import app.remote_bind.Instance
 import app.remote_bind.Server
 import app.remote_bind.addConfig
+import app.remote_bind.rm
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +38,7 @@ fun ConfigDialog(
     showDialog: MutableState<Boolean>,
     server: Server? = null,
     instance: Instance? = null,
-    onOk: (value: Config, showDialog: MutableState<Boolean>, isModify: Boolean) -> Unit = ::addConfig,
+    onOk: (value: Config, showDialog: MutableState<Boolean>, isModify: Boolean) -> Boolean = ::addConfig,
     isModify: Boolean = false,
 ) {
     var name by remember { mutableStateOf(server?.name ?: instance?.name !!) }
@@ -160,9 +161,14 @@ fun ConfigDialog(
         confirmButton = {
             FilledTonalButton(onClick = {
                 if (server != null) {
-                    onOk(Server(name, address, password), showDialog, isModify)
-                } else {
-                    onOk(Instance(name, server_name, remote_port.toUShort(), local_address), showDialog, isModify)
+                    // 修改完成后，如果配置名发生了变化，则删除原来的配置
+                    if (onOk(Server(name, address, password), showDialog, isModify && server.name == name)) {
+                        isModify && server.name != name && rm<Server>(server.name)
+                    }
+                } else if (instance != null) {
+                    if (onOk(Instance(name, server_name, remote_port.toUShort(), local_address), showDialog, isModify && instance.name == name)) {
+                        isModify && instance.name != name && rm<Instance>(instance.name)
+                    }
                 }
             }, colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.background,

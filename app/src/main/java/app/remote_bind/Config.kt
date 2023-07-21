@@ -108,11 +108,14 @@ fun getConfigs(): Pair<List<Instance>, List<Server>> {
 }
 
 /**
- * 添加配置，如果name重复，则修改已有配置
+ * 添加配置
+ * @param isModifySameName 如果 isSameName 为真，则意味着修改配置名未发生变化，不会检测重复
  */
-fun addConfig(value: Config, showDialog: MutableState<Boolean>, isModify: Boolean) {
-    if (!isModify && sharedPreferences.getStringSet(value.name, null) != null)
-        return showToast("名称不能重复！")
+fun addConfig(value: Config, showDialog: MutableState<Boolean>, isModifySameName: Boolean): Boolean {
+    if (!isModifySameName && sharedPreferences.getStringSet(value.name, null) != null) {
+        showToast("名称不能重复！")
+        return false
+    }
     when (value) {
         is Server -> {
             val servers = sharedPreferences.getStringSet("servers", setOf())!!.toMutableSet()
@@ -138,6 +141,7 @@ fun addConfig(value: Config, showDialog: MutableState<Boolean>, isModify: Boolea
     }
     configs.value = getConfigs()
     showDialog.value = false
+    return true
 }
 
 inline fun <reified T: Config> rm(name: String): Boolean {
