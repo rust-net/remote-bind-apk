@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,8 +20,9 @@
         <service
             android:name=".RmBindService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <activity
+            android:launchMode="singleInstance"
             android:name=".RmBindActivity"
             android:exported="true"
             android:label="@string/title_activity_rm_bind"
