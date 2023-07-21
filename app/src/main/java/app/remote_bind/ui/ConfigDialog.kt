@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -49,6 +51,7 @@ fun ConfigDialog(
     var local_address by remember { mutableStateOf(instance?.local_address ?: "") }
     var server_name by remember { mutableStateOf(instance?.server_name ?: "") }
     var remote_port by remember { mutableStateOf(instance?.remote_port?.toString() ?: "") }
+    var expandServer by remember { mutableStateOf(false) }
     val textFieldColors = TextFieldDefaults.textFieldColors(
         focusedLabelColor = MaterialTheme.colorScheme.background,
         focusedIndicatorColor = MaterialTheme.colorScheme.outline,
@@ -69,7 +72,7 @@ fun ConfigDialog(
             Column {
                 if (server != null) {
                     TextField(
-                        maxLines = 1,
+                        singleLine = true,
                         label = {
                             Text("name:")
                         },
@@ -81,7 +84,7 @@ fun ConfigDialog(
                     )
                     Spacer(modifier = Modifier.size(6.dp))
                     TextField(
-                        maxLines = 1,
+                        singleLine = true,
                         label = {
                             Text("address:")
                         },
@@ -93,7 +96,7 @@ fun ConfigDialog(
                     )
                     Spacer(modifier = Modifier.size(6.dp))
                     TextField(
-                        maxLines = 1,
+                        singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         label = {
                             Text("password:")
@@ -106,7 +109,7 @@ fun ConfigDialog(
                     )
                 } else if (instance != null) {
                     TextField(
-                        maxLines = 1,
+                        singleLine = true,
                         label = {
                             Text("name:")
                         },
@@ -118,7 +121,7 @@ fun ConfigDialog(
                     )
                     Spacer(modifier = Modifier.size(6.dp))
                     TextField(
-                        maxLines = 1,
+                        singleLine = true,
                         label = {
                             Text("local_address:")
                         },
@@ -129,20 +132,39 @@ fun ConfigDialog(
                         colors = textFieldColors,
                     )
                     Spacer(modifier = Modifier.size(6.dp))
-                    TextField(
-                        maxLines = 1,
-                        label = {
-                            Text("server_name:")
-                        },
-                        value = server_name,
-                        onValueChange = {
-                            server_name = it
-                        },
-                        colors = textFieldColors,
-                    )
+                    ExposedDropdownMenuBox(expanded = expandServer, onExpandedChange = {
+                        expandServer = !expandServer
+                    }) {
+                        TextField(
+                            singleLine = true,
+                            readOnly = true,
+                            label = {
+                                Text("server:")
+                            },
+                            value = server_name,
+                            onValueChange = {
+                                server_name = it
+                            },
+                            colors = textFieldColors,
+                            modifier = Modifier.menuAnchor(),
+                        )
+                        ExposedDropdownMenu(expanded = expandServer, onDismissRequest = {
+                            expandServer = false
+                        }) {
+                            val (_, servers) = configs.value
+                            servers.forEach { server ->
+                                DropdownMenuItem(text = { Text(server.name) }, onClick = {
+                                    server_name = server.name
+                                })
+                            }
+                            if (servers.isEmpty()) {
+                                Text("  No server")
+                            }
+                        }
+                    }
                     Spacer(modifier = Modifier.size(6.dp))
                     TextField(
-                        maxLines = 1,
+                        singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                         ),

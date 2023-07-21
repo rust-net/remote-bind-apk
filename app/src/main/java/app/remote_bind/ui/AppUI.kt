@@ -48,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.remote_bind.Instance
 import app.remote_bind.Server
+import app.remote_bind.application
 import app.remote_bind.getConfigs
 import kotlinx.coroutines.launch
 
@@ -118,6 +119,19 @@ fun AppTopBar(title: String) {
                 Icon(Icons.Filled.MoreVert, null, tint = MaterialTheme.colorScheme.primary)
             }
             DropdownMenu(expanded = expand, onDismissRequest = { expand = false }) {
+                DropdownMenuItem(
+                    text = {
+                        Row {
+                            Icon(Icons.Filled.ExitToApp, null, tint = MaterialTheme.colorScheme.background)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("开启前台服务")
+                        }
+                    },
+                    onClick = {
+                        application.startForegroundService()
+                        expand = false
+                    },
+                )
                 DropdownMenuItem(
                     text = {
                         Row {

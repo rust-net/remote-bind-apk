@@ -40,7 +40,7 @@ data class Instance(
     var local_address: String,
 ) : Config {
     companion object {
-        fun default() = Instance("service", "server", 0u, "127.0.0.1:5555")
+        fun default() = Instance("service", "", 0u, "127.0.0.1:5555")
     }
 }
 
