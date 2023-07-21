@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -122,13 +123,16 @@ fun AppTopBar(title: String) {
                 DropdownMenuItem(
                     text = {
                         Row {
-                            Icon(Icons.Filled.ExitToApp, null, tint = MaterialTheme.colorScheme.background)
+                            Icon(Icons.Outlined.Settings, null, tint = MaterialTheme.colorScheme.background)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("开启前台服务")
+                            if (application.isServiceRunning)
+                                Text("关闭前台服务")
+                            else
+                                Text("开启前台服务")
                         }
                     },
                     onClick = {
-                        application.startForegroundService()
+                        application.toggleForegroundService()
                         expand = false
                     },
                 )

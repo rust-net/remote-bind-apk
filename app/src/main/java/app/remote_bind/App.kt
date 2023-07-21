@@ -13,13 +13,17 @@ class App : Application() {
         sharedPreferences = getSharedPreferences("config", MODE_PRIVATE)
     }
 
-    fun startForegroundService() {
+    private val startForegroundService = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        Application::startForegroundService else Application::startService
+    var isServiceRunning = false
+    fun toggleForegroundService() {
         val intent = Intent()
         intent.setClass(this, RmBindService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.startForegroundService(intent)
+        if (isServiceRunning) {
+            stopService(intent)
         } else {
-            this.startService(intent)
+            startForegroundService(this, intent)
         }
+        isServiceRunning = !isServiceRunning
     }
 }

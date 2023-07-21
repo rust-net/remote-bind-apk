@@ -167,7 +167,7 @@ fun findServerByName(name: String): Server? {
 
 // 运行中的配置名及其id
 // 请考虑配置名被修改的情况（运行中不允许修改、删除即可）
-private val runningList = hashMapOf<String, String>()
+val runningList = hashMapOf<String, String>()
 fun playOrStop(instance: Instance, running: MutableState<Boolean>) {
     if (running.value) {
         runningList[instance.name]?.let { id ->
@@ -176,6 +176,7 @@ fun playOrStop(instance: Instance, running: MutableState<Boolean>) {
             showToast("停止成功：$id")
         }
         running.value = false
+        instRmBindService?.update()
         return
     }
     val server = findServerByName(instance.server_name).let {
@@ -188,6 +189,7 @@ fun playOrStop(instance: Instance, running: MutableState<Boolean>) {
     showToast("启动成功：$id")
     runningList[instance.name] = id
     running.value = true
+    instRmBindService?.update()
 }
 
 fun isRunning(name: String): Boolean {
