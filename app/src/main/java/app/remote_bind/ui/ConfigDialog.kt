@@ -6,12 +6,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -25,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
@@ -46,6 +51,7 @@ fun ConfigDialog(
     var name by remember { mutableStateOf(server?.name ?: instance?.name !!) }
     // server
     var address by remember { mutableStateOf(server?.address ?: "") }
+    var passwordVisible by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf(server?.password ?: "") }
     // instance
     var local_address by remember { mutableStateOf(instance?.local_address ?: "") }
@@ -97,7 +103,15 @@ fun ConfigDialog(
                     Spacer(modifier = Modifier.size(6.dp))
                     TextField(
                         singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    Icons.Default.Lock,
+                                    contentDescription = "Toggle password visibility"
+                                )
+                            }
+                        },
                         label = {
                             Text("password:")
                         },
@@ -186,10 +200,12 @@ fun ConfigDialog(
                     // 修改完成后，如果配置名发生了变化，则删除原来的配置
                     if (onOk(Server(name, address, password), showDialog, isModify && server.name == name)) {
                         isModify && server.name != name && rm<Server>(server.name)
+                        passwordVisible = false
                     }
                 } else if (instance != null) {
                     if (onOk(Instance(name, server_name, remote_port.toUShort(), local_address), showDialog, isModify && instance.name == name)) {
                         isModify && instance.name != name && rm<Instance>(instance.name)
+                        passwordVisible = false
                     }
                 }
             }, colors = ButtonDefaults.filledTonalButtonColors(
@@ -201,6 +217,7 @@ fun ConfigDialog(
         dismissButton = {
             FilledTonalButton(onClick = {
                 showDialog.value = false
+                passwordVisible = false
             }, colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = MaterialTheme.colorScheme.background,
             )) {
