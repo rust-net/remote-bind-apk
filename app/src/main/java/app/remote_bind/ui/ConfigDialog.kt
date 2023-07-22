@@ -169,6 +169,7 @@ fun ConfigDialog(
                             servers.forEach { server ->
                                 DropdownMenuItem(text = { Text(server.name) }, onClick = {
                                     server_name = server.name
+                                    expandServer = false
                                 })
                             }
                             if (servers.isEmpty()) {
