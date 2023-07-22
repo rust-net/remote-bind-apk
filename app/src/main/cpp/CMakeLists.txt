@@ -43,7 +43,7 @@ set(CMAKE_FIND_ROOT_PATH ${jniLibs}/${CMAKE_ANDROID_ARCH_ABI})
 set(CMAKE_FIND_LIBRARY_CUSTOM_LIB_SUFFIX ../) # 默认查找搜索路径下的 lib 目录, 为了删除该目录, 设置该前缀
 find_library(
         android-lib
-        NAMES rust
+        NAMES librust.a
 )
 message("android-lib: ${android-lib}") # Expect: ...app/src/main/cpp/../jniLibs/arm64-v8a/Windows/../librust.so
 
