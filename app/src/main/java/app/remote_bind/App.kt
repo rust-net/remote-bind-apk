@@ -16,14 +16,15 @@ class App : Application() {
     private val startForegroundService = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         Application::startForegroundService else Application::startService
     var isServiceRunning = false
-    fun toggleForegroundService() {
+    fun toggleForegroundService(forceClose: Boolean = false) {
         val intent = Intent()
         intent.setClass(this, RmBindService::class.java)
         if (isServiceRunning) {
             stopService(intent)
-        } else {
+            isServiceRunning = false
+        } else if (!forceClose) {
             startForegroundService(this, intent)
+            isServiceRunning = true
         }
-        isServiceRunning = !isServiceRunning
     }
 }

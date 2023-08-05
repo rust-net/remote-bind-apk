@@ -146,6 +146,7 @@ fun AppTopBar(title: String) {
                     },
                     onClick = {
                         expand = false
+                        application.toggleForegroundService(true)
                         Process.killProcess(Process.myPid())
                     },
                 )
