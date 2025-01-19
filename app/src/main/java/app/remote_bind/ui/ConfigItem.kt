@@ -169,7 +169,7 @@ fun InstanceItem(
 fun ServerItem(
     value: Server
 ) {
-    val showMenu= remember { mutableStateOf(false) }
+    val showMenu = remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
     if (showMenu.value) {
         MenuDialog(showMenu, showDialog, value)
